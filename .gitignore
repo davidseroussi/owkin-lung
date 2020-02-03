@@ -1,3 +1,6 @@
+train/**
+test/**
+.ipynb_checkpoints/**
 .DS_Store
 .huskyrc.json
 out

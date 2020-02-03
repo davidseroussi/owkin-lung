@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 def cindex(y_true_times, predicted_times, tol=1e-8):
     """
     Author: Romuald Menuet & Rémy Dubois
