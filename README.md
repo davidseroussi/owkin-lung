@@ -72,3 +72,29 @@ After reading these papers and exploring the dataset, here are the ideas I came 
     
 
 - We could also use a the Cox Regression loss for Neural Networks combined with UNet, but the training for 1D features is already very long, so a training with 3D convolutions would take an enormous amount of time. It could also overfit pretty easily since the dataset is relatively small.
+
+## 3) Feature Selection and predictions
+The goal here was to select/engineer features to improve the performance using the baseline model (Cox Regression) and parametric models like the Weibull AFT model.
+I figured out that, because the C-index and the Log likelihood ratio should give similar results, the model was overfitting when these two metrics were highly different.
+
+### a) Traditional methods
+My first approach was to try traditional feature selection methods like Lasso, Tree-based models and Chi-squared. These methods all gave different features and the results using the Cox Regression were poorer than the baseline.
+Because the radiomics are highly correlated, I did a Principal Component Analysis to construct new decorrelated features  and reduce the amount of dimension. By selecting the first two Principal Components which contained most of the variance, the performance slightly increased.
+I also tried to use the risk predicted from the Cox Regression as an input to a Gradient Boosting algorithm, which again only slightly improved the performance.     
+
+### b) Spearman Correlation
+After trying the classical methods, I focused on the ones described in the [feature selection paper](https://www.nature.com/articles/s41598-017-13448-3).   
+The main suggested methods were:  
+- Average features having a high Spearman Correlation. Spearman Correlation benchmarks monotonic relationship whereas Pearson Correlation benchmarks linear relationships. Since the radiomics are extracted from images which are by nature non-linear, the Spearman Correlation might be better in this case.
+- Select the best features from each type (shape, glcm, firstorder, glrlm).
+ 
+The main way I proceeded was: 
+
+1. Normalize features
+2. Select significant features based on p-value < 0.005 using univariate/multivariate Cox Regression. The results greatly improved when, instead of doing an univariate regression on each of the features, I added the Source Dataset as an input
+4. Average features having Spearman Correlation > 0.8 (or 0.9)
+5. Cross-validate on different models
+6. Repeat steps 2-3-4 until good C-index and Log likelihood ratio
+
+I did not fully automate this pipeline in order to keep control on which features were being used.    
+Sometimes I added previous significant features that were discarded in earlier steps; for example if I saw that shape features were not used at all in the grouped features I added the most significant shape feature.
