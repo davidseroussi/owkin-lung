@@ -4,9 +4,12 @@
 
 Having no experience in Survival analysis/Time-to-event analysis, I had to understand why these problems are different from typical supervised learning problems, and the potential methods that were available to address them. I also saw the provided data was quite limited, and the presence of censored data made the task more difficult.
 
+This report is a summary of my work on this challenge.
+
 The section ordering of this report is only partially chronological, considering I went back and forth between all the different parts throughout my work.
 
-## Summary
+
+## Table of contents
 
 1.  Data Exploration and Baseline model
     
@@ -16,8 +19,6 @@ The section ordering of this report is only partially chronological, considering
     
 4.  Results
     
-
-  
 
 ## 1) Data Exploration and Baseline model
 
@@ -87,14 +88,32 @@ After trying the classical methods, I focused on the ones described in the [feat
 The main suggested methods were:  
 - Average features having a high Spearman Correlation. Spearman Correlation benchmarks monotonic relationship whereas Pearson Correlation benchmarks linear relationships. Since the radiomics are extracted from images which are by nature non-linear, the Spearman Correlation might be better in this case.
 - Select the best features from each type (shape, glcm, firstorder, glrlm).
- 
-The main way I proceeded was: 
+
+After exploring these techniques by hand, I pseudo-automated the process, which is roughly this one:
 
 1. Normalize features
-2. Select significant features based on p-value < 0.005 using univariate/multivariate Cox Regression. The results greatly improved when, instead of doing an univariate regression on each of the features, I added the Source Dataset as an input
+2. Select significant features based on p-value < 0.005 using univariate/multivariate Cox Regression. The results greatly improved when, instead of doing an univariate regression on each of the features, I added the Source Dataset as an input. This gave features that are significant over the two datasets.
 4. Average features having Spearman Correlation > 0.8 (or 0.9)
 5. Cross-validate on different models
 6. Repeat steps 2-3-4 until good C-index and Log likelihood ratio
 
 I did not fully automate this pipeline in order to keep control on which features were being used.    
-Sometimes I added previous significant features that were discarded in earlier steps; for example if I saw that shape features were not used at all in the grouped features I added the most significant shape feature.
+Sometimes I added previous significant features that were discarded in earlier steps; for example if I saw that shape features were not used at all in the grouped features I added the most significant shape feature.  
+I also tried to split features by type before averaging them, which led to more overfitting.
+
+I studied the significance of the clinical data using the same principles, and found out that the SourceDataset, the age and the Tstage are the most sginificant features.
+
+This method gave the best results on the training and test set.  
+All models tested (Cox Regression, Weibull AFT model, log-normal and log-logistic AFT models) gave similar results.
+
+### c) Other approaches
+
+These are approaches I explored but did not invest too much time in, as I thought feature selection was the key to this challenge.
+
+- I implemented my "idea" about extracting feature vectors of tumors from the images using a 3DUNet (see this [colab notebook](3DUnet_Survival.ipynb)), and used these features as input data, which did not work very well. I did not spend much time optimizing it, but it might a good solution since neural networks are good at extracting abstract features that are not obvious to humans.
+
+- I also tried [DeepSurv](https://github.com/liupei101/TFDeepSurv) with the radiomics data, but the training was astonishly long and the results improved very very slowly. 
+
+This list is not exhaustive as I tried many different approaches and sometimes combined them.
+
+## 4) Results
