@@ -132,11 +132,11 @@ The features are :
 
 The model used is a CoxPH model with the [lifelines](https://lifelines.readthedocs.io/en/latest/) library.
 
-Results on train set:  
+Results on train set, after 50 cross-validations, splitting the data randomly in 3 sets each time:  
 C-Index: 0.71 (+/- 0.06)  
-Log-likelihood ratio test: 87.04
-Max: 0.77  
+Max: 0.77    
 Min: 0.63  
+Log-likelihood ratio test: 87.04
 
 Results on pulic test set:  
 C-Index: 0.7314  
