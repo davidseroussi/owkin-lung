@@ -1,6 +1,9 @@
 # Owkin Challenge: Predicting lung cancer survival time
 
-  
+This is David Seroussi's participation at the Owkin Challenge.  
+In order to run the notebooks, please place the train and test repositories at the root of the project.
+
+# Summary
 
 Having no experience in Survival analysis/Time-to-event analysis, I had to understand why these problems are different from typical supervised learning problems, and the potential methods that were available to address them. I also saw the provided data was quite limited, and the presence of censored data made the task more difficult.
 
@@ -25,7 +28,7 @@ The section ordering of this report is only partially chronological, considering
 In order to understand the problem better, I familiarized myself with the dataset and took a look at the distributions and correlations of both radiomics and clinical data. I also visualized the scans to have a concrete representation of what I was analyzing.
 
 ### a) Images
-I had ideas about what could be done with the raw scans and their well segmented masks, but I also realized the challenges of having volumetric images; the only CNNs I had seen so far were for “flat” images. Because tumors are in 3D, information is contained in 3 directions which would be hard to extract with classic CNNs.
+I had ideas about what could be done with the raw scans and their well segmented masks, but I also realized the challenges of having volumetric images; the only CNNs I had seen so far were for “flat” images. Because tumors are in 3D, information is contained in 3 directions which would be hard to extract with traditional CNNs.
 
 ### b) Radiomics
 I found out that most radiomics features were not normally distributed, and were highly correlated between each other. This told me I would need to do some aggressive feature selection/engineering in order to get good generalized results, and not overfit the dataset.
@@ -68,7 +71,7 @@ After reading these papers and exploring the dataset, here are the ideas I came 
     
 -   Use univariate and multivariate Cox Regression to find out most significant variables to use.
     
--   Train a 3DUnet on the images to predict the corresponding masks. As the UNet is basically an autoencoder, the feature vectors at the middle of the the network must contain important features about the tumor that might be not present in the radiomics. We could use these features as additional data, which was not done in the Brain Tumor paper (they only used the extracted radiomics).
+-   Train a 3DUnet on the images to predict the corresponding masks. As the UNet is basically an autoencoder, the feature vectors at the middle of the the network must contain important features about the tumor that might not be present in the radiomics. We could use these features as additional data, which was not done in the Brain Tumor paper (they only used the extracted radiomics).
 - Collect more data, use the 3DUnet to segment more CT-scans and extract radiomics from these segmentations.
     
 
@@ -117,3 +120,24 @@ These are approaches I explored but did not invest too much time in, as I though
 This list is not exhaustive as I tried many different approaches and sometimes combined them.
 
 ## 4) Results
+These are the best results I obtained, both on the training set and the public test set.  
+
+Using the method described in **3.b)**, I selected 5 features, with 2 of them being groups of averaged radiomics.  
+The features are :
+- 'group2': average of 
+- 'group4': ClusterProminence
+- 'SourceDataset'
+- 'Nstage'
+- 'age'
+
+The model used is a CoxPH model with the [lifelines](https://lifelines.readthedocs.io/en/latest/) library.
+
+Results on train set:  
+C-Index: 0.71 (+/- 0.06)  
+Max: 0.77  
+Min: 0.63  
+
+Results on pulic test set:
+C-Index: 0.7314  
+
+Getting a quite high Concordance Index on the public test set, and because the model has some variance, I expect the performance on the private test to be lower (C-Index ~= 0.69) than on the public set.
