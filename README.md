@@ -124,8 +124,8 @@ These are the best results I obtained, both on the training set and the public t
 
 Using the method described in **3.b)**, I selected 5 features, with 2 of them being groups of averaged radiomics.  
 The features are :
-- 'group2': average of 
-- 'group4': ClusterProminence
+- 'group2': average of 'original_firstorder_Mean', 'original_firstorder_Median', 'original_glcm_Id', 'original_glcm_Idm','original_glcm_Idn'
+- 'group4': original_glcm_ClusterProminence
 - 'SourceDataset'
 - 'Nstage'
 - 'age'
@@ -134,10 +134,11 @@ The model used is a CoxPH model with the [lifelines](https://lifelines.readthedo
 
 Results on train set:  
 C-Index: 0.71 (+/- 0.06)  
+Log-likelihood ratio test: 87.04
 Max: 0.77  
 Min: 0.63  
 
-Results on pulic test set:
+Results on pulic test set:  
 C-Index: 0.7314  
 
 Getting a quite high Concordance Index on the public test set, and because the model has some variance, I expect the performance on the private test to be lower (C-Index ~= 0.69) than on the public set.
